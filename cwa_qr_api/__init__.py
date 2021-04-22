@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from flask import Flask, request, Response
 
-import cwa
+from cwa import cwa
 
 
 PROJECT_ROOT = dirname(dirname(abspath(__file__)))
