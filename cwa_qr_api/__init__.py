@@ -90,7 +90,7 @@ def generate_qr_code():
         req_data = request.form.to_dict()
 
     start_utc = int(req_data.get('start_utc', datetime.now(timezone.utc).timestamp()))
-    end_utc = int(req_data.get('end_utc', (datetime.now(timezone.utc) + timedelta(days=1))).timestamp())
+    end_utc = int(req_data.get('end_utc', (datetime.now(timezone.utc) + timedelta(days=1)).timestamp()))
 
     eventDescription = cwa.CwaEventDescription()
     eventDescription.locationDescription = str(req_data['description'])
