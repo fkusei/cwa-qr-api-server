@@ -1,2 +1,2 @@
 Flask==1.1.2
-cwa @ git+https://github.com/MaZderMind/cwa-qr.git
+cwa_qr

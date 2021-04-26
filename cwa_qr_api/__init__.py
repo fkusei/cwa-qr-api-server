@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from flask import Flask, request, Response
 
-from cwa import cwa
+import cwa_qr
 
 
 PROJECT_ROOT = dirname(dirname(abspath(__file__)))
@@ -92,18 +92,30 @@ def generate_qr_code():
     start_utc = int(req_data.get('start_utc', datetime.now(timezone.utc).timestamp()))
     end_utc = int(req_data.get('end_utc', (datetime.now(timezone.utc) + timedelta(days=1)).timestamp()))
 
-    eventDescription = cwa.CwaEventDescription()
-    eventDescription.locationDescription = str(req_data['description'])
-    eventDescription.locationAddress = str(req_data['address'])
-    eventDescription.startDateTime = datetime.fromtimestamp(start_utc)
-    eventDescription.endDateTime = datetime.fromtimestamp(end_utc)
-    eventDescription.locationType = int(req_data.get('location_type', cwa.lowlevel.LOCATION_TYPE_UNSPECIFIED))
-    eventDescription.defaultCheckInLengthInMinutes = int(req_data.get('checkin_length_minutes', 4*60))
+    descr = cwa_qr.CwaEventDescription()
+    descr.location_description = str(req_data['description'])
+    descr.location_address = str(req_data['address'])
+    descr.start_date_time = datetime.fromtimestamp(start_utc)
+    descr.end_date_time = datetime.fromtimestamp(end_utc)
+    descr.location_type = int(req_data.get('location_type', cwa_qr.lowlevel.LOCATION_TYPE_UNSPECIFIED))
+    descr.default_check_in_length_in_minutes = int(req_data.get('checkin_length_minutes', 4*60))
 
-    if not eventDescription.locationDescription or not eventDescription.locationAddress:
+    if 'seed' in req_data:
+        descr.seed = str(req_data['seed'])
+
+    if not descr.location_description or not descr.location_address:
         return 'missing required data', 400
 
-    qr = cwa.generateQrCode(eventDescription)
+    if app.debug:
+        print(f'description: {descr.location_description}')
+        print(f'    address: {descr.location_address}')
+        print(f'      start: {descr.start_date_time} ({start_utc})')
+        print(f'        end: {descr.end_date_time} ({end_utc})')
+        print(f'       type: {descr.location_type}')
+        print(f'       time: {descr.default_check_in_length_in_minutes}')
+        print(f'       seed: {descr.seed}')
+
+    qr = cwa_qr.generate_qr_code(descr)
     img = qr.make_image(fill_color='black', back_color='white')
 
     output = BytesIO()
